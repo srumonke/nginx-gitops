@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: nginx-rings
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - ring: dev
+            namespace: default
+  template:
+    metadata:
+      name: nginx-{{ring}}
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/srumonke/nginx-gitops.git
+        targetRevision: main
+        path: manifests
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: false
